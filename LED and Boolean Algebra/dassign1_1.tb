@@ -1,0 +1,101 @@
+// Code your testbench here
+// or browse Examples
+//--------------------------------------------------------------------
+//		Timescale
+//		Means that if you do #1 in the initial block of your
+//		testbench, time is advanced by 1ns instead of 1ps
+//--------------------------------------------------------------------
+`timescale 1ns / 1ps
+//--------------------------------------------------------------------
+//		Design Assign #1, Problem #1 Testbench.
+//
+// This is essentially the testbench we use in the autograder provided as 
+// an example of a test bench.
+//--------------------------------------------------------------------
+module dassign1_1_tb();
+//----------------------------------------------------------------
+//		Signal Declarations
+//----------------------------------------------------------------
+reg	a,b,c,d,e,f,g,sel;
+wire	y1,y2,y3,y4,y5,y6,y7,y8;
+reg	z1,z2,z3,z4,z5,z6,z7,z8;
+integer i;
+integer pat1_err,pat2_err,pat3_err,pat4_err,pat5_err,pat6_err,pat7_err,pat8_err;
+	
+//----------------------------------------------------------------
+//		Instantiate modules Module
+//----------------------------------------------------------------
+inverter	inv_1(y1, a);
+nand2		nand2_1(y2, a, b);
+nand3		nand3_1(y3, a, b, c);
+nor2		nor2_1(y4, a, b);
+nor3		nor3_1(y5, a, b, c);
+mux2		mux2_1(y6, a, b, sel);
+xor2		xor2_1(y7, a, b);
+dassign1_1	dassign1_1_1(y8,a,b,c,d,e,f,g);
+//----------------------------------------------------------------
+//		Test Stimulus
+//----------------------------------------------------------------
+initial begin
+   pat1_err=0;pat2_err=0;pat3_err=0;pat4_err=0;
+   pat5_err=0;pat6_err=0;pat7_err=0;pat8_err=0;
+   a=0;b=0;c=0;d=0;e=0;f=0;g=0;sel=0;
+//
+// this is an example of cycling through all possible combinations
+//
+   for(i=7'b0;i<127;i=i+1) begin
+      #2
+      a=i[0];b=i[1];c=i[2];sel=i[2];d=i[3];e=i[4];f=i[5];g=i[6];
+      #1
+      //z are correct outputs
+      z1 = ~a;
+      z2 = ~(a & b);
+      z3 = ~(a & b & c);
+      z4 =  ~(a | b);
+      z5 = ~(a | b | c);
+     if(sel) begin
+       z6 = a;
+     end
+     else 
+       begin
+      z6 = b;
+       end
+      z7 = (a | b) & (~a | ~b);
+      z8 = ((a&b&c) | ~d) | ((f & g) &~e); 
+
+      #8
+      if(y1 !== z1) begin
+         $monitor ("a=%b func=%b correct=%b i=%b",a,y1,z1,i);  
+         pat1_err=pat1_err+1;
+      end
+      if(y2 !== z2) begin
+         $monitor ("a=%b b=%b func=%b correct=%b i=%b",a,b,y2,z2,i);  
+         pat2_err=pat2_err+1;
+      end
+      if(y3 !== z3) begin
+         $monitor ("a=%b b=%b c=%b func=%b correct=%b i=%b",a,b,c,y3,z3,i);  
+         pat3_err=pat3_err+1;
+      end
+      if(y4 !== z4) begin
+         $monitor ("a=%b b=%b func=%b correct=%b i=%b",a,b,y4,z4,i);  
+         pat4_err=pat4_err+1;
+      end
+      if(y5 !== z5) begin
+         $monitor ("a=%b b=%b c=%b func=%b correct=%b i=%b",a,b,c,y5,z5,i);  
+         pat5_err=pat5_err+1;
+      end
+      if(y6 !== z6) begin
+         $monitor ("a=%b b=%b sel=%b func=%b correct=%b i=%b",a,b,c,y6,z6,i);  
+         pat6_err=pat6_err+1;
+      end
+      if(y7 !== z7) begin
+         $monitor ("a=%b b=%b func=%b correct=%b i=%b",a,b,y7,z7,i);  
+         pat7_err=pat7_err+1;
+      end
+      if(y8 !== z8) begin
+         $monitor ("a=%b b=%b c=%b d=%b e=%b f=%b g=%b func=%b correct=%b i=%b",a,b,c,d,e,f,g,y8,z8,i);  
+         pat8_err=pat8_err+1;
+      end
+   end
+end
+endmodule

@@ -1,0 +1,53 @@
+//--------------------------------------------------------------------
+//		Timescale
+//		Means that if you do #1 in the initial block of your
+//		testbench, time is advanced by 1ns instead of 1ps
+//--------------------------------------------------------------------
+`timescale 1ns / 1ps
+
+//--------------------------------------------------------------------
+//		Design Assign #1, Problem #2 Testbench.
+//--------------------------------------------------------------------
+module dassign1_2_tb();
+//----------------------------------------------------------------
+//		Signal Declarations
+//----------------------------------------------------------------
+reg	a,b,c,d,e;
+integer i;
+wire	y,z;
+reg     m,n;
+integer pat1_err, pat2_err;
+	
+//----------------------------------------------------------------
+//		Instantiate modules Module
+//----------------------------------------------------------------
+dassign1_2	dassign1_2_1(y,z,a,b,c,d,e);
+  
+//----------------------------------------------------------------
+//		Test Stimulus
+//----------------------------------------------------------------
+initial begin
+   a=0;b=0;c=0;d=0;e=0;
+//
+// This is an example of cycling through all possible combinations
+//
+   for(i=5'b0;i<31;i=i+1) begin
+      #2
+      a=i[0];b=i[1];c=i[2];d=i[3];e=i[4];
+      #1
+     
+      m = (~b | c);
+     n = ((a & b & ~c) | a | (c & (~b | (d & ~e))));
+
+	  #8
+      if(y !== m) begin
+        $monitor ("a=%b func=%b correct=%b i=%b",a,b,c,d,e,y,m,i);  
+         pat1_err=pat1_err+1;
+      end
+      if(z !== n) begin
+        $monitor ("a=%b b=%b c=%b d=%b e=%b func=%b correct=%b i=%b",a,b,c,d,e,z,n,i);  
+         pat2_err=pat2_err+1;
+      end
+   end
+end
+endmodule
